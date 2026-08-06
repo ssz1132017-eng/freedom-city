@@ -13,6 +13,8 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 [autoload]
 
 TrafficManager="*res://scripts/traffic_manager.gd"
+Screenshot="*res://scripts/screenshot.gd"
+ScreenshotTop="*res://scripts/screenshot_top.gd"
 
 [display]
 

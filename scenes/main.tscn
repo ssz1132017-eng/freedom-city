@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/city.gd" id="1_city"]
 [ext_resource type="Script" path="res://scripts/car.gd" id="2_car"]
+[ext_resource type="Script" path="res://scripts/asset_buildings.gd" id="3_assets"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.35, 0.55, 0.85, 1)
@@ -20,6 +21,9 @@ ambient_light_source = 3
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_city")
+
+[node name="AssetBuildings" type="Node3D" parent="."]
+script = ExtResource("3_assets")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_env")

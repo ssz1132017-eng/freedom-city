@@ -18,7 +18,7 @@ func _ready() -> void:
 	rng.randomize()
 	_build_ground()
 	_build_streets()
-	_build_buildings()
+	# _build_buildings() 已由 AssetBuildings 用 GLB 素材替代
 	_build_streetlights()
 	_build_traffic()
 	_build_pedestrians()

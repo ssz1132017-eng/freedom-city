@@ -1,0 +1,10 @@
+# Godot 本地缓存（由编辑器生成，无需提交）
+.godot/
+
+# 截图临时文件
+screenshot.png
+screenshot_top.png
+
+# 系统文件
+Thumbs.db
+.DS_Store
