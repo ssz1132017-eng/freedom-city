@@ -57,7 +57,7 @@ func _handle_intersection() -> void:
 	else:
 		at_intersection = false
 
-## 前方检测：玩家车 + NPC 车都算障碍
+## 前方检测：玩家车 + NPC 车都算障碍；红灯路口停车
 func _avoid_obstacles(delta: float) -> void:
 	var target := CRUISE
 	var space := get_world_3d().direct_space_state
@@ -69,7 +69,13 @@ func _avoid_obstacles(delta: float) -> void:
 	var hit := space.intersect_ray(query)
 	if hit:
 		target = SLOW
-	speed = move_toward(speed, target, 8.0 * delta)
+	# 红灯：接近灯控路口时完全停车
+	var grid := Vector2i(roundi(global_position.x / BLOCK), roundi(global_position.z / BLOCK))
+	var center := Vector3(grid.x * BLOCK, 0, grid.y * BLOCK)
+	var dist := Vector2(global_position.x - center.x, global_position.z - center.z).length()
+	if TrafficManager.is_red(grid) and dist < 12.0 and dist > 2.5:
+		target = 0.0
+	speed = move_toward(speed, target, 10.0 * delta)
 
 ## 车身：简单盒子 + 4 轮（不同颜色区分）
 func _build_mesh() -> void:
