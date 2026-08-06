@@ -20,6 +20,55 @@ func _ready() -> void:
 	_build_streets()
 	_build_buildings()
 	_build_streetlights()
+	_build_traffic()
+	_build_pedestrians()
+
+## 生成 NPC 车辆：每条街道上随机放几辆
+func _build_traffic() -> void:
+	var npc_script := load("res://scripts/npc_car.gd")
+	var count := 0
+	# 横向街道（沿 Z 行驶）：x = i*BLOCK，车放在街道中间
+	for i in range(GRID_W + 1):
+		for k in range(2):
+			if rng.randf() < 0.5:
+				var car := CharacterBody3D.new()
+				car.name = "NpcCar_%d_%d" % [i, k]
+				car.set_script(npc_script)
+				var z := rng.randf_range(3.0, GRID_H * BLOCK - 3.0)
+				car.position = Vector3(i * BLOCK, 0.4, z)
+				add_child(car)
+				count += 1
+	# 纵向街道（沿 X 行驶）：z = j*BLOCK
+	for j in range(GRID_H + 1):
+		for k in range(2):
+			if rng.randf() < 0.5:
+				var car := CharacterBody3D.new()
+				car.name = "NpcCarV_%d_%d" % [j, k]
+				car.set_script(npc_script)
+				var x := rng.randf_range(3.0, GRID_W * BLOCK - 3.0)
+				car.position = Vector3(x, 0.4, j * BLOCK)
+				car.rotate_y(PI / 2.0)  # 面朝 X 方向
+				add_child(car)
+				count += 1
+	print("generated NPC cars: ", count)
+
+## 生成行人：沿街道两侧人行道放几个
+func _build_pedestrians() -> void:
+	var ped_script := load("res://scripts/pedestrian.gd")
+	var count := 0
+	for i in range(GRID_W + 1):
+		for side in [-1.0, 1.0]:
+			if rng.randf() < 0.35:
+				var p := CharacterBody3D.new()
+				p.name = "Ped_%d_%s" % [i, "L" if side < 0 else "R"]
+				p.set_script(ped_script)
+				# 人行道：街道两侧靠建筑处
+				var px: float = i * BLOCK + side * (STREET_W / 2.0 + 1.2)
+				var pz: float = rng.randf_range(4.0, GRID_H * BLOCK - 4.0)
+				p.position = Vector3(px, 0.0, pz)
+				add_child(p)
+				count += 1
+	print("generated pedestrians: ", count)
 
 ## 一大块平整地面（城市基底）
 func _build_ground() -> void:
