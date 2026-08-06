@@ -58,15 +58,18 @@ func _build_asset_buildings() -> void:
 					scene = building_scenes[rng.randi_range(0, building_scenes.size() - 1)]
 				else:
 					continue
-				var b := scene.instantiate()
+				var b: Node3D = scene.instantiate()
 				b.name = "AssetBuilding_%d_%d_%d" % [i, j, k]
 				# 街区内的随机偏移（避开街道）
 				var ox := rng.randf_range(-(BLOCK / 2.0 - STREET_W / 2.0 - 3.0), BLOCK / 2.0 - STREET_W / 2.0 - 3.0)
 				var oz := rng.randf_range(-(BLOCK / 2.0 - STREET_W / 2.0 - 3.0), BLOCK / 2.0 - STREET_W / 2.0 - 3.0)
 				b.position = Vector3(cx + ox, 0, cz + oz)
 				b.rotation.y = rng.randf() * TAU  # 随机朝向
-				# 随机缩放（GLB 素材原始尺寸偏小，放大到街区块）
-				var s := rng.randf_range(1.0, 1.6)
+				var s: float
+				if scene in skyscraper_scenes:
+					s = rng.randf_range(18.0, 26.0)  # 摩天楼更高
+				else:
+					s = rng.randf_range(8.0, 15.0)   # 普通楼
 				b.scale = Vector3(s, s, s)
 				add_child(b)
 				count += 1
@@ -83,6 +86,7 @@ func _build_road_lights() -> void:
 			var l: Node3D = road_light_scenes[rng.randi_range(0, road_light_scenes.size() - 1)].instantiate()
 			l.name = "AssetLight_%d_%d" % [i, j]
 			l.position = Vector3(i * BLOCK, 0, j * BLOCK)
+			l.scale = Vector3(2.5, 2.5, 2.5)  # GLB 路灯原始约 1 米，放大到合理高度
 			add_child(l)
 			count += 1
 	print("placed road lights: ", count)
