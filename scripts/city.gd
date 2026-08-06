@@ -22,6 +22,8 @@ func _ready() -> void:
 	_build_streetlights()
 	_build_traffic()
 	_build_pedestrians()
+	_build_traffic_lights()
+	_build_crosswalks()
 
 ## 生成 NPC 车辆：每条街道上随机放几辆
 func _build_traffic() -> void:
@@ -69,6 +71,62 @@ func _build_pedestrians() -> void:
 				add_child(p)
 				count += 1
 	print("generated pedestrians: ", count)
+
+## 红绿灯：每 2 个路口放一组（避免全城都是灯）
+func _build_traffic_lights() -> void:
+	var light_script := load("res://scripts/traffic_light.gd")
+	var count := 0
+	for i in range(0, GRID_W + 1, 2):
+		for j in range(0, GRID_H + 1, 2):
+			var tl := Node3D.new()
+			tl.name = "TrafficLight_%d_%d" % [i, j]
+			tl.set_script(light_script)
+			tl.position = Vector3(i * BLOCK, 0, j * BLOCK)
+			add_child(tl)
+			# 把 grid 信息传给脚本（脚本 _ready 时注册）
+			tl.set("grid", Vector2i(i, j))
+			count += 1
+	print("generated traffic lights: ", count)
+
+## 斑马线：灯控路口的四个入口各铺几条白条
+func _build_crosswalks() -> void:
+	var white := StandardMaterial3D.new()
+	white.albedo_color = Color(0.92, 0.92, 0.9)
+	white.roughness = 0.9
+	var count := 0
+	for i in range(0, GRID_W + 1, 2):
+		for j in range(0, GRID_H + 1, 2):
+			var cx := i * BLOCK
+			var cz := j * BLOCK
+			# 南北向入口（沿 Z 的街道，x = cx 两侧）
+			for side in [-1.0, 1.0]:
+				for k in range(5):
+					var stripe := MeshInstance3D.new()
+					stripe.name = "Crosswalk_%d_%d_%d" % [i, j, k]
+					stripe.mesh = _box(1.2, 0.06, 0.6)
+					stripe.mesh.surface_set_material(0, white)
+					stripe.position = Vector3(
+						cx + side * (STREET_W / 2.0 + 0.5),
+						0.06,
+						cz - 3.0 + k * 1.5
+					)
+					add_child(stripe)
+					count += 1
+			# 东西向入口（沿 X 的街道，z = cz 两侧）
+			for side in [-1.0, 1.0]:
+				for k in range(5):
+					var stripe := MeshInstance3D.new()
+					stripe.name = "CrosswalkH_%d_%d_%d" % [i, j, k]
+					stripe.mesh = _box(0.6, 0.06, 1.2)
+					stripe.mesh.surface_set_material(0, white)
+					stripe.position = Vector3(
+						cx - 3.0 + k * 1.5,
+						0.06,
+						cz + side * (STREET_W / 2.0 + 0.5)
+					)
+					add_child(stripe)
+					count += 1
+	print("generated crosswalk stripes: ", count)
 
 ## 一大块平整地面（城市基底）
 func _build_ground() -> void:
